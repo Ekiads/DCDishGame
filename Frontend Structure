@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title> Food Rating </title>
+
+</head>
+
+
+<body>
+    <section style="text-align: center; margin-top: 30px;">
+    <h1> DC DISH VOTING </h1>
+    <div>
+
+
+    </div>
+
+    <h2>Login</h2>
+    <form action="action_page.php" method="POST">
+        <div>
+        <label for ="fname">First Name:</label>    
+        <input type="text" id="fname" name="fname" placeholder="First Name" required>
+    </div>
+
+    <br>
+
+    <div>
+
+        <label for="lname">Last Name: </label>
+        <input type="text" id="lname" name="lname" placeholder="Last Name" required>
+     
+    </div>
+
+    <br>
+
+    <div>
+        <label for="email">email: </label>
+        <input type="email" id="email" name ="email" placeholder="name@ucdavis.edu">
+
+
+    </div>
+
+    <br>
+
+    <div>
+        <label for="pass">Password: </label>
+        <input type="password" id="pass" name ="pass" maxlength="15">
+
+    
+    </div>
+
+    <br>
+
+    <div>
+        <label for="bday">Birthdate: </label>
+        <input type="date" id="bday" name ="bday">
+    
+    
+    </div>
+
+    
+    <section style="text-align: center; margin-top: 30px;">
+        <h2>Select Your Dining Commons (DC)</h2>
+    
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+            <button onclick="selectDC('Segundo')" class="dc-button">Segundo</button>
+            <button onclick="selectDC('Tercero')" class="dc-button">Tercero</button>
+            <button onclick="selectDC('Cuarto')" class="dc-button">Cuarto</button>
+            <button onclick="selectDC('Latitude')" class="dc-button">Latitude</button>
+        </div>
+    
+        <p id="selected-dc" style="margin-top: 20px; font-weight: bold;"></p>
+    </section>
+    
+    <script>
+    function selectDC(dcName) {
+        document.getElementById("selected-dc").textContent = "You selected: " + dcName;
+        // You can later store this value to use for voting
+    }
+    </script>
+    
+
+
+    <br>
+    <p>Genders: </p>
+    <div>
+        <input type="radio" name="gender" value="male">
+        <label>Male</label>
+        
+        <input type="radio" name="gender" value="female">
+        <label>Female</label>
+        
+        <input type="radio" name="gender" value="others">
+        <label>Others</label>
+        
+
+    </div>
+
+    <br>
+
+    <div>
+        <input type="reset">
+
+    </div>
+
+    <br>
+    
+    <div>
+        <input type="submit">
+
+    </div>
+
+    </form>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <img src ="/images/UCDavis.png" height = "100" width="250">
+    <h1> Cuarto DC menu</h1>
+
+    <p><b id="date"></b></p>
+
+    <script>
+        document.getElementById("date").textContent = new Date().toDateString();
+    </script>
+
+    <a href="https://housing.ucdavis.edu/dining/menus/dining-commons/cuarto/" target=_blank title="This brings you to Cuarto DC menu page">
+        Click here to view the Cuarto DC menu
+    </a>
+  
+    
+
+</body>
+</html> 
