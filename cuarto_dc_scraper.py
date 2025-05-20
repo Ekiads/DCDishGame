@@ -113,3 +113,7 @@ def upload_menu_to_db(menu, service_account_path):
                             }]
                         })
 
+
+if __name__ == "__main__":
+    menu = scrape_cuarto_dc_menu()
+    upload_menu_to_db(menu, firebase_key.json)
