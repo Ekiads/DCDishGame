@@ -1,7 +1,6 @@
 # import statements
 
 import requests
-import pandas as pd
 from json import loads
 import time
 from bs4 import BeautifulSoup
