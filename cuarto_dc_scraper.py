@@ -102,7 +102,7 @@ def upload_menu_to_db(menu, service_account_path):
                     else:
                         dish_doc_ref.set({
                             "description": desc,
-                            "meal": meal_type,
+                            "mealID": meal_type,
                             "sectionID": section,
                             "dishName": name,
                             "time_info": [time_entry],
