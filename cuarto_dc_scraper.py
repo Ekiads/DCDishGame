@@ -14,7 +14,7 @@ def scrape_cuarto_dc_menu(verbose=False):
     current_meal = None
     current_station = None
 
-    valid_meals = ['Breakfast', 'Lunch', 'Dinner', 'Late Night']
+    valid_meals = ['Breakfast', 'Lunch', 'Dinner']
 
     for tag in soup.find_all(['h3', 'h4', 'h5', 'ul']):
         if tag.name == 'h3':
