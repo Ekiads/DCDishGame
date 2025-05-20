@@ -95,7 +95,7 @@ def upload_menu_to_db(menu, service_account_path):
                     doc = dish_doc_ref.get()
                     if doc.exists:
                         dish_doc_ref.update({
-                            "dates": firestore.ArrayUnion([{
+                            "info": firestore.ArrayUnion([{
                                 "date": date,
                                 "meal": meal_type,
                                 "sectionID": section,
@@ -105,7 +105,7 @@ def upload_menu_to_db(menu, service_account_path):
                     else:
                         dish_doc_ref.set({
                             "description": desc,
-                            "dates": [{
+                            "info": [{
                                 "date": date,
                                 "meal": meal_type,
                                 "sectionID": section,
