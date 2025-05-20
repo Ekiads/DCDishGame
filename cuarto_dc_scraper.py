@@ -1,8 +1,4 @@
-# import statements
-
 import requests
-from json import loads
-import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 import firebase_admin
@@ -82,6 +78,8 @@ def upload_menu_to_db(menu, service_account_path):
         firebase_admin.initialize_app(cred)
     db = firestore.client()
 
+    now = datetime.utcnow().isoformat()
+
     for date, meals in menu.items():
         for meal_type, locations in meals.items():
             for section, dishes in locations.items():
@@ -91,25 +89,24 @@ def upload_menu_to_db(menu, service_account_path):
 
                     dish_doc_ref = db.collection("dishes").document(name)
 
+                    time_entry = {
+                        "date": date,
+                        "timestamp": now
+                    }
+
                     doc = dish_doc_ref.get()
                     if doc.exists:
                         dish_doc_ref.update({
-                            "info": firestore.ArrayUnion([{
-                                "date": date,
-                                "meal": meal_type,
-                                "sectionID": section,
-                                "dishName": name
-                            }])
+                            "time_info": firestore.ArrayUnion([time_entry])
                         })
                     else:
                         dish_doc_ref.set({
                             "description": desc,
-                            "info": [{
-                                "date": date,
-                                "meal": meal_type,
-                                "sectionID": section,
-                                "dishName": name
-                            }]
+                            "meal": meal_type,
+                            "sectionID": section,
+                            "dishName": name,
+                            "time_info": [time_entry],
+                            "votes": 0
                         })
 
 
