@@ -27,5 +27,5 @@ jobs:
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.FIREBASE_KEY }}
       run: |
-        echo "$GOOGLE_APPLICATION_CREDENTIALS" > fire_base_key.json
+        echo "$GOOGLE_APPLICATION_CREDENTIALS" > firebase_key.json
         python cuarto_dc_scraper.py
