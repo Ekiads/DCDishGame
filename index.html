@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DC Dish Voting</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin-top: 30px;
+      text-align: center;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+    }
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="date"] {
+      width: 90%; padding: 10px; margin-bottom: 15px; font-size: 16px;
+    }
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    button, input[type="submit"], input[type="reset"] {
+      padding: 12px 20px;
+      margin: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    .dc-button {
+      background-color: #bdf6bf;
+      border: 2px solid black;
+      padding: 15px 0;
+      font-size: 20px;
+      color: black;
+      font-weight: bold;
+      border-radius: 8px;
+      margin: 10px auto;
+      width: 250px;
+      display: block;
+      cursor: pointer;
+      text-align: center;
+    }
+    .nav-button {
+      background-color: #f9fbe7;
+      border-color: #9e9d24;
+      min-width: 130px;
+    }
+    .station { text-align: left; margin: 20px 0; }
+    .station-title {
+      font-weight: bold;
+      text-decoration: underline;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .vote-buttons { display: flex; gap: 10px; margin-top: 5px; }
+    .vote-btn {
+      padding: 10px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 1px solid #9e9d24;
+      border-radius: 8px;
+      background-color: white;
+    }
+    .vote-btn:hover { background-color: #f0f4c3; }
+    .vote-btn.selected { background-color: #add8e6; }
+  </style>
+</head>
+<body>
+  <h1>DC DISH VOTING</h1>
+
+  <!-- Firebase Auth Buttons and Greeting -->
+  <div>
+    <button onclick="loginWithGoogle()">Log in with Google</button>
+    <button onclick="logout()">Log out</button>
+    <p id="greeting">Please log in.</p>
+  </div>
+
+  <form id="multiStepForm">
+    <div class="form-step active">
+      <h2>Login Info</h2>
+      <label for="fname">First Name:</label>
+      <input type="text" id="fname" required />
+      <label for="lname">Last Name:</label>
+      <input type="text" id="lname" required />
+      <label for="email">Email:</label>
+      <input type="email" id="email" required />
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <div class="form-step">
+      <h2>Additional Info</h2>
+      <label for="pass">Password:</label>
+      <input type="password" id="pass" required />
+      <label for="bday">Birthdate:</label>
+      <input type="date" id="bday" />
+      <p>Gender:</p>
+      <label><input type="radio" name="gender" value="male" required /> Male</label>
+      <label><input type="radio" name="gender" value="female" /> Female</label>
+      <label><input type="radio" name="gender" value="others" /> Others</label>
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
+        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <div class="form-step">
+      <h2>Select Your Dining Commons</h2>
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <button type="button" class="dc-button" onclick="goToDC('segundo')">Segundo</button>
+        <button type="button" class="dc-button" onclick="goToDC('tercero')">Tercero</button>
+        <button type="button" class="dc-button" onclick="goToDC('cuarto')">Cuarto</button>
+        <button type="button" class="dc-button" onclick="goToDC('latitude')">Latitude</button>
+      </div>
+      <div class="buttons" style="margin-top: 30px;">
+        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
+      </div>
+    </div>
+
+    <div class="form-step" id="dc-step">
+      <h2 id="dc-title">Dining Commons</h2>
+      <div id="dc-welcome"></div>
+      <div id="station-container"></div>
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
+        <button type="button" id="submit-votes-btn" class="nav-button" onclick="submitVotes()">Submit Votes</button>
+      </div>
+    </div>
+
+    <div class="form-step" id="results-step">
+      <h2>Top Rated Dishes</h2>
+      <ol id="results-list"></ol>
+    </div>
+  </form>
+
+  <script>
+    const steps = document.querySelectorAll(".form-step");
+    let currentStep = 0;
+    let selectedDC = "";
+    let selectedVotes = {};
+    const voteStats = {};
+    function showStep(step) {
+      steps.forEach((s, i) => s.classList.toggle("active", i === step));
+    }
+    function nextStep() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    }
+    function prevStep() {
+      if (currentStep === 3) currentStep = 2;
+      else if (currentStep > 0) currentStep--;
+      showStep(currentStep);
+    }
+    function goToDC(dc) {
+      selectedDC = dc;
+      currentStep = 3;
+      showStep(currentStep);
+      const now = new Date();
+      const mins = now.getHours() * 60 + now.getMinutes();
+      let stations = [], meal = "";
+      if (dc === "segundo" || dc === "tercero") {
+        meal = mins < 660 ? "breakfast" : mins < 1020 ? "lunch" : "dinner";
+        stations = meal === "breakfast" ? ["Tomato Street Grill", "Go Live", "Fresh Inspirations", "Harvest Bakery"] : ["Bistro", "Pacific Fusion", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
+      } else if (dc === "cuarto") {
+        meal = mins < 660 ? "breakfast" : "lunch";
+        stations = meal === "breakfast" ? ["Tomato Street Grill", "Seasonality East", "Fresh Inspirations", "Harvest Bakery"] : ["Tomato Street Grill", "Seasonality West", "Saucey Saute", "Seasonality East", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
+      } else if (dc === "latitude") {
+        if (mins >= 630 && mins < 900) meal = "lunch";
+        else if (mins >= 990 && mins < 1200) meal = "dinner";
+        stations = meal ? ["Station 1", "Station 2", "Station 3", "Station 4"] : ["Latitude is currently closed."];
+      }
+      document.getElementById("dc-title").textContent = dc.toUpperCase() + " DC";
+      document.getElementById("dc-welcome").textContent = meal ? `Welcome to ${dc.toUpperCase()} DC, here\'s today\'s ${meal} menu.` : '';
+      selectedVotes = {};
+      renderStations(stations);
+    }
+    function renderStations(stations) {
+      const container = document.getElementById("station-container");
+      container.innerHTML = "";
+      stations.forEach((station) => {
+        const div = document.createElement("div");
+        div.className = "station";
+        const title = document.createElement("div");
+        title.className = "station-title";
+        title.textContent = station;
+        const voteDiv = document.createElement("div");
+        voteDiv.className = "vote-buttons";
+        const up = document.createElement("button");
+        const down = document.createElement("button");
+        up.className = down.className = "vote-btn";
+        up.textContent = "👍";
+        down.textContent = "👎";
+        up.onclick = () => { selectVote(up, down); selectedVotes[station] = "up"; };
+        down.onclick = () => { selectVote(down, up); selectedVotes[station] = "down"; };
+        voteDiv.append(up, down);
+        div.append(title, voteDiv);
+        container.appendChild(div);
+      });
+    }
+    function selectVote(sel, other) {
+      sel.classList.add("selected");
+      other.classList.remove("selected");
+    }
+    function submitVotes() {
+      if (Object.keys(selectedVotes).length === 0) return alert("Please vote on at least one station.");
+      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+      for (const [station, vote] of Object.entries(selectedVotes)) {
+        voteStats[station] = voteStats[station] || { total: 0, score: 0 };
+        voteStats[station].total++;
+        if (vote === "up") voteStats[station].score++;
+      }
+      const top3 = Object.entries(voteStats)
+        .sort((a, b) => b[1].score - a[1].score)
+        .slice(0, 3);
+      const list = document.getElementById("results-list");
+      list.innerHTML = top3.map(([s, d]) => `<li>${s} - ${d.score} 👍 out of ${d.total} votes</li>`).join('');
+      currentStep = 4;
+      showStep(currentStep);
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOk0pjGJ8PIW3iKF3eszVDO4XO8qYXTNo",
+      authDomain: "dcdishgame.firebaseapp.com",
+      databaseURL: "https://dcdishgame-default-rtdb.firebaseio.com",
+      projectId: "dcdishgame",
+      storageBucket: "dcdishgame.firebasestorage.app",
+      messagingSenderId: "936299946861",
+      appId: "1:936299946861:web:93ac2c893e9a651776f064",
+      measurementId: "G-YHTDWS0DQE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    function loginWithGoogle() {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          alert(`Hi ${user.displayName}, you are logged in!`);
+          document.getElementById('greeting').textContent = `Hi ${user.displayName}`;
+        })
+        .catch((error) => {
+          console.error("Login error:", error);
+        });
+    }
+
+    function logout() {
+      signOut(auth).then(() => {
+        document.getElementById('greeting').textContent = "You are logged out.";
+      });
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('greeting').textContent = `Hi ${user.displayName}`;
+      } else {
+        document.getElementById('greeting').textContent = "Please log in.";
+      }
+    });
+
+    window.loginWithGoogle = loginWithGoogle;
+    window.logout = logout;
+  </script>
+</body>
+</html>
