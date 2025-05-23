@@ -80,44 +80,16 @@
 <body>
   <h1>DC DISH VOTING</h1>
 
-  <!-- Firebase Auth Buttons and Greeting -->
-  <div>
-    <button onclick="loginWithGoogle()">Log in with Google</button>
-    <button onclick="logout()">Log out</button>
+  <div id="auth-container">
+    <button id="login-btn" onclick="loginWithGoogle()">Log in with Google</button>
+    <button id="logout-btn" onclick="logout()" style="display:none;">Log out</button>
     <p id="greeting">Please log in.</p>
   </div>
 
   <form id="multiStepForm">
-    <div class="form-step active">
-      <h2>Login Info</h2>
-      <label for="fname">First Name:</label>
-      <input type="text" id="fname" required />
-      <label for="lname">Last Name:</label>
-      <input type="text" id="lname" required />
-      <label for="email">Email:</label>
-      <input type="email" id="email" required />
-      <div class="buttons">
-        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
-      </div>
-    </div>
+    <div class="form-step active" id="step-login"></div>
 
-    <div class="form-step">
-      <h2>Additional Info</h2>
-      <label for="pass">Password:</label>
-      <input type="password" id="pass" required />
-      <label for="bday">Birthdate:</label>
-      <input type="date" id="bday" />
-      <p>Gender:</p>
-      <label><input type="radio" name="gender" value="male" required /> Male</label>
-      <label><input type="radio" name="gender" value="female" /> Female</label>
-      <label><input type="radio" name="gender" value="others" /> Others</label>
-      <div class="buttons">
-        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
-        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
-      </div>
-    </div>
-
-    <div class="form-step">
+    <div class="form-step" id="step-dc-selection">
       <h2>Select Your Dining Commons</h2>
       <div style="display: flex; flex-direction: column; align-items: center;">
         <button type="button" class="dc-button" onclick="goToDC('segundo')">Segundo</button>
@@ -125,9 +97,7 @@
         <button type="button" class="dc-button" onclick="goToDC('cuarto')">Cuarto</button>
         <button type="button" class="dc-button" onclick="goToDC('latitude')">Latitude</button>
       </div>
-      <div class="buttons" style="margin-top: 30px;">
-        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
-      </div>
+      <!-- Back button removed as requested -->
     </div>
 
     <div class="form-step" id="dc-step">
@@ -152,33 +122,42 @@
     let selectedDC = "";
     let selectedVotes = {};
     const voteStats = {};
+
     function showStep(step) {
       steps.forEach((s, i) => s.classList.toggle("active", i === step));
     }
+
     function nextStep() {
       if (currentStep < steps.length - 1) {
         currentStep++;
-        showStep(currentStep);
       }
-    }
-    function prevStep() {
-      if (currentStep === 3) currentStep = 2;
-      else if (currentStep > 0) currentStep--;
       showStep(currentStep);
     }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+      }
+      showStep(currentStep);
+    }
+
     function goToDC(dc) {
       selectedDC = dc;
-      currentStep = 3;
+      currentStep = 2;
       showStep(currentStep);
       const now = new Date();
       const mins = now.getHours() * 60 + now.getMinutes();
       let stations = [], meal = "";
       if (dc === "segundo" || dc === "tercero") {
         meal = mins < 660 ? "breakfast" : mins < 1020 ? "lunch" : "dinner";
-        stations = meal === "breakfast" ? ["Tomato Street Grill", "Go Live", "Fresh Inspirations", "Harvest Bakery"] : ["Bistro", "Pacific Fusion", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
+        stations = meal === "breakfast"
+          ? ["Tomato Street Grill", "Go Live", "Fresh Inspirations", "Harvest Bakery"]
+          : ["Bistro", "Pacific Fusion", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
       } else if (dc === "cuarto") {
         meal = mins < 660 ? "breakfast" : "lunch";
-        stations = meal === "breakfast" ? ["Tomato Street Grill", "Seasonality East", "Fresh Inspirations", "Harvest Bakery"] : ["Tomato Street Grill", "Seasonality West", "Saucey Saute", "Seasonality East", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
+        stations = meal === "breakfast"
+          ? ["Tomato Street Grill", "Seasonality East", "Fresh Inspirations", "Harvest Bakery"]
+          : ["Tomato Street Grill", "Seasonality West", "Saucey Saute", "Seasonality East", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
       } else if (dc === "latitude") {
         if (mins >= 630 && mins < 900) meal = "lunch";
         else if (mins >= 990 && mins < 1200) meal = "dinner";
@@ -189,6 +168,7 @@
       selectedVotes = {};
       renderStations(stations);
     }
+
     function renderStations(stations) {
       const container = document.getElementById("station-container");
       container.innerHTML = "";
@@ -200,22 +180,35 @@
         title.textContent = station;
         const voteDiv = document.createElement("div");
         voteDiv.className = "vote-buttons";
+
         const up = document.createElement("button");
         const down = document.createElement("button");
+        up.type = "button";
+        down.type = "button";
         up.className = down.className = "vote-btn";
         up.textContent = "👍";
         down.textContent = "👎";
-        up.onclick = () => { selectVote(up, down); selectedVotes[station] = "up"; };
-        down.onclick = () => { selectVote(down, up); selectedVotes[station] = "down"; };
+
+        up.onclick = () => {
+          selectVote(up, down);
+          selectedVotes[station] = "up";
+        };
+        down.onclick = () => {
+          selectVote(down, up);
+          selectedVotes[station] = "down";
+        };
+
         voteDiv.append(up, down);
         div.append(title, voteDiv);
         container.appendChild(div);
       });
     }
+
     function selectVote(sel, other) {
       sel.classList.add("selected");
       other.classList.remove("selected");
     }
+
     function submitVotes() {
       if (Object.keys(selectedVotes).length === 0) return alert("Please vote on at least one station.");
       document.querySelectorAll("button").forEach(btn => btn.disabled = true);
@@ -229,7 +222,7 @@
         .slice(0, 3);
       const list = document.getElementById("results-list");
       list.innerHTML = top3.map(([s, d]) => `<li>${s} - ${d.score} 👍 out of ${d.total} votes</li>`).join('');
-      currentStep = 4;
+      currentStep = 3;
       showStep(currentStep);
     }
   </script>
@@ -262,6 +255,10 @@
           const user = result.user;
           alert(`Hi ${user.displayName}, you are logged in!`);
           document.getElementById('greeting').textContent = `Hi ${user.displayName}`;
+          document.getElementById('login-btn').style.display = "none";
+          document.getElementById('logout-btn').style.display = "inline-block";
+          currentStep = 1;
+          showStep(currentStep);
         })
         .catch((error) => {
           console.error("Login error:", error);
@@ -271,14 +268,28 @@
     function logout() {
       signOut(auth).then(() => {
         document.getElementById('greeting').textContent = "You are logged out.";
+        document.getElementById('login-btn').style.display = "inline-block";
+        document.getElementById('logout-btn').style.display = "none";
+        currentStep = 0;
+        showStep(currentStep);
       });
     }
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById('greeting').textContent = `Hi ${user.displayName}`;
+        document.getElementById('login-btn').style.display = "none";
+        document.getElementById('logout-btn').style.display = "inline-block";
+        if (currentStep === 0) {
+          currentStep = 1;
+          showStep(currentStep);
+        }
       } else {
         document.getElementById('greeting').textContent = "Please log in.";
+        document.getElementById('login-btn').style.display = "inline-block";
+        document.getElementById('logout-btn').style.display = "none";
+        currentStep = 0;
+        showStep(currentStep);
       }
     });
 
