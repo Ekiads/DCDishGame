@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DC Dish Voting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #002855;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+      max-width: 700px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 22px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .form-step {
+      display: none;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button, input[type="submit"] {
+      padding: 12px 24px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .nav-button {
+      background-color: #ffecb3;
+      color: #795548;
+    }
+
+    .nav-button:hover {
+      background-color: #ffe082;
+    }
+
+    .dc-button {
+      background-color: #ffe082;
+      color: #B3A369;
+      margin: 10px;
+      font-size: 18px;
+    }
+
+    .dc-button:hover {
+      background-color: #81c784;
+    }
+
+    .station {
+      margin-bottom: 20px;
+    }
+
+    .station-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .vote-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .vote-btn {
+      background: #fff;
+      border: 1px solid #ccc;
+      font-size: 20px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .vote-btn:hover {
+      background: #e0f2f1;
+    }
+
+    .vote-btn.selected {
+      background: #aed581;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: #555;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>DC DISH VOTING</header>
+  <form id="multiStepForm">
+    <!-- Step 1 -->
+    <div class="form-step active">
+      <h2>Login Info</h2>
+      <label for="fname">First Name:</label>
+      <input type="text" id="fname" required />
+
+      <label for="lname">Last Name:</label>
+      <input type="text" id="lname" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" placeholder="name@ucdavis.edu" required />
+
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="form-step">
+      <h2>Additional Info</h2>
+      <label for="pass">Password:</label>
+      <input type="password" id="pass" required />
+
+      <label for="bday">Birthdate:</label>
+      <input type="date" id="bday" />
+
+      <p>Gender:</p>
+      <label><input type="radio" name="gender" value="male" required /> Male</label>
+      <label><input type="radio" name="gender" value="female" /> Female</label>
+      <label><input type="radio" name="gender" value="others" /> Others</label>
+
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
+        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="form-step">
+      <h2>Select Your Dining Commons</h2>
+      <div>
+        <button type="button" class="dc-button" onclick="goToDC('segundo')">Segundo</button>
+        <button type="button" class="dc-button" onclick="goToDC('tercero')">Tercero</button>
+        <button type="button" class="dc-button" onclick="goToDC('cuarto')">Cuarto</button>
+        <button type="button" class="dc-button" onclick="goToDC('latitude')">Latitude</button>
+      </div>
+    </div>
+
+    <!-- Step 4+ -->
+    <div class="form-step" id="dc-step">
+      <h2 id="dc-title">Dining Commons</h2>
+      <div id="dc-welcome" style="font-size:16px; font-weight:normal; margin-bottom:15px;"></div>
+      <div id="station-container"></div>
+
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
+        <button type="button" id="submit-votes-btn" class="nav-button" onclick="submitVotes()">Submit Votes</button>
+      </div>
+    </div>
+  </form>
+
+  <br />
+  <img src="/Users/jannafasheh/Documents/dcdish/UCDavis.png" height="100" width="250" />
+  <p><b id="date"></b></p>
+
+  <script>
+    document.getElementById("date").textContent = new Date().toDateString();
+
+    const steps = document.querySelectorAll(".form-step");
+    let currentStep = 0;
+    let selectedDC = "";
+    let selectedVotes = {};
+
+    function showStep(step) {
+      steps.forEach((s, i) => s.classList.toggle("active", i === step));
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep >= 3) {
+        currentStep = 2;
+      } else if (currentStep > 0) {
+        currentStep--;
+      }
+      showStep(currentStep);
+    }
+
+    function goToDC(dc) {
+      selectedDC = dc;
+      currentStep = 3;
+      showStep(currentStep);
+
+      const now = new Date();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const totalMinutes = hour * 60 + minute;
+
+      let stations = [];
+      let dcTitle = "";
+
+      let mealTime = "";
+
+      if (dc === "segundo" || dc === "tercero") {
+        dcTitle = dc.charAt(0).toUpperCase() + dc.slice(1) + " DC";
+        if (totalMinutes < 660) {
+          // before 11am
+          stations = [
+            "Tomato Street Grill",
+            "Go Live",
+            "Fresh Inspirations",
+            "Harvest Bakery",
+          ];
+          mealTime = "breakfast";
+        } else if (totalMinutes >= 660 && totalMinutes < 1020) {
+          // 11:00am - 5:00pm approx
+          stations = [
+            "Bistro",
+            "Pacific Fusion",
+            "Saucey",
+            "Fresh Inspirations",
+            "Harvest Bakery",
+          ];
+          mealTime = "lunch";
+        } else {
+          // after 5pm
+          stations = [
+            "Bistro",
+            "Pacific Fusion",
+            "Saucey",
+            "Fresh Inspirations",
+            "Harvest Bakery",
+          ];
+          mealTime = "dinner";
+        }
+      } else if (dc === "cuarto") {
+        dcTitle = "Cuarto DC";
+        if (totalMinutes < 660) {
+          stations = [
+            "Tomato Street Grill",
+            "Seasonality East",
+            "Fresh Inspirations",
+            "Harvest Bakery",
+          ];
+          mealTime = "breakfast";
+        } else if (totalMinutes >= 660 && totalMinutes < 1020) {
+          stations = [
+            "Tomato Street Grill",
+            "Seasonality West",
+            "Saucey Saute",
+            "Seasonality East",
+            "Saucey",
+            "Fresh Inspirations",
+            "Harvest Bakery",
+          ];
+          mealTime = "lunch";
+        } else {
+          stations = [
+            "Tomato Street Grill",
+            "Seasonality West",
+            "Saucey Saute",
+            "Seasonality East",
+            "Saucey",
+            "Fresh Inspirations",
+            "Harvest Bakery",
+          ];
+          mealTime = "dinner";
+        }
+      } else if (dc === "latitude") {
+        dcTitle = "Latitude DC";
+        if (totalMinutes >= 630 && totalMinutes < 900) {
+          stations = ["Station 1", "Station 2", "Station 3", "Station 4"];
+          mealTime = "lunch";
+        } else if (totalMinutes >= 990 && totalMinutes < 1200) {
+          stations = ["Station 1", "Station 2", "Station 3", "Station 4"];
+          mealTime = "dinner";
+        } else {
+          stations = ["Latitude is currently closed."];
+          mealTime = "";
+        }
+      }
+
+      document.getElementById("dc-title").textContent = dcTitle;
+
+      // Welcome line
+      const welcomeDiv = document.getElementById("dc-welcome");
+      if (mealTime) {
+        welcomeDiv.textContent = `Welcome to ${dcTitle}, here's today's ${mealTime} menu.`;
+      } else {
+        welcomeDiv.textContent = `Welcome to ${dcTitle}.`;
+      }
+
+      renderStations(stations);
+      selectedVotes = {}; // clear previous votes
+    }
+
+    function renderStations(stations) {
+      const container = document.getElementById("station-container");
+      container.innerHTML = "";
+
+      stations.forEach((station) => {
+        const stationDiv = document.createElement("div");
+        stationDiv.className = "station";
+
+        const title = document.createElement("div");
+        title.className = "station-title";
+        title.textContent = station;
+
+        const voteDiv = document.createElement("div");
+        voteDiv.className = "vote-buttons";
+
+        const upBtn = document.createElement("button");
+        upBtn.className = "vote-btn";
+        upBtn.textContent = "👍";
+        upBtn.onclick = () => {
+          selectVote(upBtn, downBtn);
+          selectedVotes[station] = "up";
+        };
+
+        const downBtn = document.createElement("button");
+        downBtn.className = "vote-btn";
+        downBtn.textContent = "👎";
+        downBtn.onclick = () => {
+          selectVote(downBtn, upBtn);
+          selectedVotes[station] = "down";
+        };
+
+        voteDiv.appendChild(upBtn);
+        voteDiv.appendChild(downBtn);
+
+        stationDiv.appendChild(title);
+        stationDiv.appendChild(voteDiv);
+
+        container.appendChild(stationDiv);
+      });
+    }
+
+    function selectVote(selectedBtn, otherBtn) {
+      selectedBtn.classList.add("selected");
+      otherBtn.classList.remove("selected");
+    }
+
+    function submitVotes() {
+      if (Object.keys(selectedVotes).length === 0) {
+        alert("Please vote on at least one station before submitting.");
+        return;
+      }
+
+      // Collect user info
+      const fname = document.getElementById("fname").value.trim();
+      const lname = document.getElementById("lname").value.trim();
+      const email = document.getElementById("email").value.trim();
+
+      if (!fname || !lname || !email) {
+        alert("Please fill out all login information.");
+        currentStep = 0;
+        showStep(currentStep);
+        return;
+      }
+
+      // For demo, we just show the collected votes and info
+      console.log("User:", fname, lname, email);
+      console.log("Selected DC:", selectedDC);
+      console.log("Votes:", selectedVotes);
+
+      alert("Thank you for submitting your votes!");
+
+      // Reset form or go back to start if needed
+      // location.reload();
+    }
+  </script>
+</body>
+</html>
