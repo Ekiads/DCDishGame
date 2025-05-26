@@ -1202,6 +1202,58 @@ async function showStations(dc) {
       showStep(3);
     }
 
+    async function showResults() {
+  if (!selectedDC || !currentMeal) {
+    showError("No voting session active.");
+    return;
+  }
+
+  // Load current vote counts
+  await loadVoteCounts();
+  
+  // Calculate scores for all stations
+  const stations = Object.keys(stationVoteCounts);
+  const stationScores = stations.map(station => {
+    const counts = stationVoteCounts[station] || { up: 0, down: 0 };
+    return {
+      name: station,
+      score: counts.up - counts.down,
+      upVotes: counts.up,
+      downVotes: counts.down,
+      totalVotes: counts.up + counts.down
+    };
+  });
+
+  // Sort by score (highest first) and take top 3
+  stationScores.sort((a, b) => b.score - a.score);
+  const top3 = stationScores.slice(0, 3);
+
+  const resultsList = document.getElementById('results-list');
+  resultsList.innerHTML = '';
+  
+  if (top3.length === 0) {
+    resultsList.innerHTML = '<li>No votes yet for this meal period.</li>';
+  } else {
+    top3.forEach((station, index) => {
+      const li = document.createElement('li');
+      const rank = index + 1;
+      const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
+      
+      const stationInfo = document.createElement('span');
+      stationInfo.innerHTML = `${medal} <strong>${station.name}</strong>`;
+      
+      const voteCount = document.createElement('span');
+      voteCount.classList.add('vote-count');
+      voteCount.innerHTML = `👍 ${station.upVotes} | 👎 ${station.downVotes}`;
+      
+      li.appendChild(stationInfo);
+      li.appendChild(voteCount);
+      resultsList.appendChild(li);
+    });
+  }
+
+  showStep(3);
+}
 
 
 
