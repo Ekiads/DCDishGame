@@ -459,10 +459,17 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}.vote-btn.voted {
-  background-color: #27ae60; /* Green for voted buttons */
+}.vote-btn.thumbs-up.voted {
+  background-color: #27ae60; /* Green for thumbs up */
   color: white;
   box-shadow: 0 6px 18px rgba(39, 174, 96, 0.75);
+  transform: scale(1.1);
+}
+
+.vote-btn.thumbs-down.voted {
+  background-color: #e74c3c; /* Red for thumbs down */
+  color: white;
+  box-shadow: 0 6px 18px rgba(231, 76, 60, 0.75);
   transform: scale(1.1);
 }
 
@@ -617,6 +624,65 @@ let currentMeal = null;
 let userVotes = {};
 let stationVoteCounts = {};
 
+   // 4. VOTE HANDLING FUNCTION - replaces the simple vote storage
+// Function declarations (hoisted)
+async function handleVote(stationName, voteType) {
+  const user = auth.currentUser;
+  if (!user) {
+    showError("You must be logged in to vote.");
+    return;
+  }
+
+  const userId = user.uid;
+  const voteId = `${userId}_${selectedDC}_${currentMeal}_${stationName}`;
+ 
+  try {
+    // Check if user already voted for this station
+    const existingVoteDoc = await db.collection('votes').doc(voteId).get();
+   
+    if (existingVoteDoc.exists) {
+      const existingVote = existingVoteDoc.data();
+      if (existingVote.voteType === voteType) {
+        showError("You've already cast this vote for this station!");
+        return;
+      }
+     
+      // Update existing vote
+      await db.collection('votes').doc(voteId).update({
+        voteType: voteType,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      // Create new vote
+      await db.collection('votes').doc(voteId).set({
+        userId: userId,
+        userName: user.displayName || 'Anonymous',
+        stationName: stationName,
+        dc: selectedDC,
+        meal: currentMeal,
+        voteType: voteType, // 'up' or 'down'
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // Update local vote tracking
+    userVotes[stationName] = voteType;
+   
+    // Refresh the station display to show updated vote counts
+    await loadVoteCounts();
+    updateStationDisplay(stationName);
+   
+    console.log(`Vote recorded: ${voteType} for ${stationName}`);
+   
+  } catch (error) {
+    console.error("Error recording vote:", error);
+    showError(`Failed to record vote: ${error.message}`);
+  }
+}
+
+function showError(message) {
+  alert(message);
+}
 
 
 
@@ -741,62 +807,7 @@ let stationVoteCounts = {};
     }
 
 
-    // 4. VOTE HANDLING FUNCTION - replaces the simple vote storage
-async function handleVote(stationName, voteType) {
-  const user = auth.currentUser;
-  if (!user) {
-    showError("You must be logged in to vote.");
-    return;
-  }
 
-
-  const userId = user.uid;
-  const voteId = `${userId}_${selectedDC}_${currentMeal}_${stationName}`;
- 
-  try {
-    // Check if user already voted for this station
-    const existingVoteDoc = await db.collection('votes').doc(voteId).get();
-   
-    if (existingVoteDoc.exists) {
-      const existingVote = existingVoteDoc.data();
-      if (existingVote.voteType === voteType) {
-        showError("You've already cast this vote for this station!");
-        return;
-      }
-     
-      // Update existing vote
-      await db.collection('votes').doc(voteId).update({
-        voteType: voteType,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } else {
-      // Create new vote
-      await db.collection('votes').doc(voteId).set({
-        userId: userId,
-        userName: user.displayName || 'Anonymous',
-        stationName: stationName,
-        dc: selectedDC,
-        meal: currentMeal,
-        voteType: voteType, // 'up' or 'down'
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-
-    // Update local vote tracking
-    userVotes[stationName] = voteType;
-   
-    // Refresh the station display to show updated vote counts
-    await loadVoteCounts();
-    updateStationDisplay(stationName);
-   
-    console.log(`Vote recorded: ${voteType} for ${stationName}`);
-   
-  } catch (error) {
-    console.error("Error recording vote:", error);
-    showError(`Failed to record vote: ${error.message}`);
-  }
-}
 
 
 // 5. LOAD VOTE COUNTS FROM FIRESTORE
@@ -881,13 +892,13 @@ function updateStationDisplay(stationName) {
 
 async function showStations(dc) {
   selectedDC = dc;
-  userVotes = {}; // reset votes for new DC
+  userVotes = {}; // Reset user's vote record
 
   const dcTitle = document.getElementById('dc-title');
   dcTitle.textContent = dc.charAt(0).toUpperCase() + dc.slice(1);
 
   const dcWelcome = document.getElementById('dc-welcome');
-  
+
   // Determine meal period
   const meal = getCurrentMeal(dc);
   if (!meal) {
@@ -896,19 +907,17 @@ async function showStations(dc) {
     return;
   }
 
-  currentMeal = meal; // Store current meal
+  currentMeal = meal;
 
-  // Create welcome message with meal times
   const schedule = dcSchedules[dc];
   const currentMealInfo = schedule.meals.find(m => m.name === meal);
   const welcomeText = `Welcome to ${dcTitle.textContent} DC! Here's today's ${meal.toLowerCase()} menu (${formatTime(currentMealInfo.start)} - ${formatTime(currentMealInfo.end)}). Rate each station with a thumbs up 👍 or thumbs down 👎!`;
-
   dcWelcome.textContent = welcomeText;
 
   const container = document.getElementById('station-container');
-  container.innerHTML = '<div class="loading"></div>'; // Show loading
+  container.innerHTML = '<div class="loading">Loading stations...</div>';
 
-  // Get stations based on dc and meal
+  // Get stations based on DC and meal
   let stations = [];
   if (dc === 'latitude') {
     stations = dcStations.latitude.stations;
@@ -927,11 +936,11 @@ async function showStations(dc) {
   // Clear loading indicator
   container.innerHTML = '';
 
-  // Create station vote UI for each station
+  // Render stations
   stations.forEach(station => {
     const stationDiv = document.createElement('div');
     stationDiv.classList.add('station');
-    stationDiv.setAttribute('data-station', station); // Add data attribute
+    stationDiv.setAttribute('data-station', station);
 
     const title = document.createElement('div');
     title.classList.add('station-title');
@@ -944,205 +953,52 @@ async function showStations(dc) {
     const votesDiv = document.createElement('div');
     votesDiv.classList.add('votes');
 
-    // Updated button click handlers
     const thumbsUp = document.createElement('button');
     thumbsUp.type = 'button';
     thumbsUp.classList.add('vote-btn', 'thumbs-up');
     thumbsUp.innerHTML = '👍';
     thumbsUp.title = `Thumbs up for ${station}`;
-    thumbsUp.onclick = () => handleVote(station, 'up'); // Use new handleVote function
+    thumbsUp.onclick = () => handleVote(station, 'up');
 
     const thumbsDown = document.createElement('button');
     thumbsDown.type = 'button';
     thumbsDown.classList.add('vote-btn', 'thumbs-down');
     thumbsDown.innerHTML = '👎';
     thumbsDown.title = `Thumbs down for ${station}`;
-    thumbsDown.onclick = () => handleVote(station, 'down'); // Use new handleVote function
+    thumbsDown.onclick = () => handleVote(station, 'down');
 
     votesDiv.appendChild(thumbsUp);
     votesDiv.appendChild(thumbsDown);
 
-    // Add vote statistics display
     const statsDiv = document.createElement('div');
     statsDiv.classList.add('vote-stats');
 
     stationDiv.appendChild(title);
     stationDiv.appendChild(ratingLabel);
     stationDiv.appendChild(votesDiv);
-    stationDiv.appendChild(statsDiv); // Add stats div
+    stationDiv.appendChild(statsDiv);
     container.appendChild(stationDiv);
 
-    // Update display with current vote counts
-    updateStationDisplay(station);
+    updateStationDisplay(station); // Apply vote counts and highlight buttons
   });
 
   showStep(2);
 }
 
-    function showStations(dc) {
-      selectedDC = dc;
-      votes = {}; // reset votes for new DC
 
 
 
 
-      const dcTitle = document.getElementById('dc-title');
-      dcTitle.textContent = dc.charAt(0).toUpperCase() + dc.slice(1);
 
 
 
 
-      const dcWelcome = document.getElementById('dc-welcome');
-     
-      // Determine meal period
-      const meal = getCurrentMeal(dc);
-      if (!meal) {
-        alert(`${dcTitle.textContent} is currently closed.`);
-        goToDCSelection();
-        return;
-      }
-
-
-
-
-      // Create welcome message with meal times
-      const schedule = dcSchedules[dc];
-      const currentMealInfo = schedule.meals.find(m => m.name === meal);
-      const welcomeText = `Welcome to ${dcTitle.textContent} DC! Here's today's ${meal.toLowerCase()} menu (${formatTime(currentMealInfo.start)} - ${formatTime(currentMealInfo.end)}). Rate each station with a thumbs up 👍 or thumbs down 👎!`;
-      let userVotes = {};            // ← ADD
-      let stationVoteCounts = {};    // ← ADD
-
-
-
-
-      dcWelcome.textContent = welcomeText;
-
-
-
-
-      const container = document.getElementById('station-container');
-      container.innerHTML = '';
-
-
-
-
-      // Get stations based on dc and meal
-      let stations = [];
-      if (dc === 'latitude') {
-        stations = dcStations.latitude.stations;
-      } else {
-        stations = dcStations[dc][meal];
-        if (!stations) {
-          alert(`${dcTitle.textContent} has no stations during ${meal} period.`);
-          goToDCSelection();
-          return;
-        }
-      }
-
-
-
-
-      // Create station vote UI for each station
-      stations.forEach(station => {
-        const stationDiv = document.createElement('div');
-        stationDiv.classList.add('station');
-
-
-
-
-        const title = document.createElement('div');
-        title.classList.add('station-title');
-        title.textContent = station;
-
-
-
-
-        const ratingLabel = document.createElement('div');
-        ratingLabel.classList.add('rating-label');
-        ratingLabel.textContent = 'Vote for this station:';
-
-
-
-
-        const votesDiv = document.createElement('div');
-        votesDiv.classList.add('votes');
-
-
-
-
-        // Create thumbs up/down buttons
-        const thumbsUp = document.createElement('button');
-        thumbsUp.type = 'button';
-        thumbsUp.classList.add('vote-btn', 'thumbs-up');
-        thumbsUp.innerHTML = '👍';
-        thumbsUp.title = `Thumbs up for ${station}`;
-
-
-
-
-        thumbsUp.onclick = () => {
-          votes[station] = 'up';
-          // Highlight selected vote btn
-          Array.from(votesDiv.children).forEach(child => child.classList.remove('selected'));
-          thumbsUp.classList.add('selected');
-        };
-
-
-
-
-        const thumbsDown = document.createElement('button');
-        thumbsDown.type = 'button';
-        thumbsDown.classList.add('vote-btn', 'thumbs-down');
-        thumbsDown.innerHTML = '👎';
-        thumbsDown.title = `Thumbs down for ${station}`;
-
-
-
-
-        thumbsDown.onclick = () => {
-          votes[station] = 'down';
-          // Highlight selected vote btn
-          Array.from(votesDiv.children).forEach(child => child.classList.remove('selected'));
-          thumbsDown.classList.add('selected');
-        };
-
-
-
-
-        votesDiv.appendChild(thumbsUp);
-        votesDiv.appendChild(thumbsDown);
-
-
-
-
-        stationDiv.appendChild(title);
-        stationDiv.appendChild(ratingLabel);
-        stationDiv.appendChild(votesDiv);
-        container.appendChild(stationDiv);
-      });
-
-
-
-
-      showStep(2);
-    }
-
-
-   
-
-
-
-
-
-
-
-
-    function tryGoToDC(dc) {
+    async function tryGoToDC(dc) {
       if (!isDCOpen(dc)) {
         alert(`${dc.charAt(0).toUpperCase() + dc.slice(1)} is currently closed. Please choose a different dining commons.`);
         return;
       }
-      showStations(dc);
+      await showStations(dc);
     }
 
 
@@ -1205,6 +1061,7 @@ async function showStations(dc) {
         const rank = index + 1;
         const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
        
+        
         const stationInfo = document.createElement('span');
         stationInfo.innerHTML = `${medal} <strong>${station.name}</strong>`;
        
@@ -1332,7 +1189,6 @@ async function showStations(dc) {
   </script>
 </body>
 </html>
-
 
 
 
