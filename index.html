@@ -4,297 +4,1263 @@
   <meta charset="UTF-8" />
   <title>DC Dish Voting</title>
   <style>
+    /* General Styles */
     body {
-      font-family: sans-serif;
-      margin-top: 30px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
       text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    form {
+
+
+
+
+    h1 {
+      font-weight: 900;
+      font-size: 2.8rem;
+      margin-bottom: 30px;
+      color: #2c3e50;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+
+
+
+
+    h2 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #34495e;
+    }
+
+
+
+
+    /* Steps */
+    .form-step {
+      display: none;
       max-width: 600px;
-      margin: auto;
+      width: 100%;
     }
-    .form-step { display: none; }
-    .form-step.active { display: block; }
-    label {
+    .form-step.active {
       display: block;
-      margin: 10px 0 5px;
     }
-    input[type="text"], input[type="email"], input[type="password"], input[type="date"] {
-      width: 90%; padding: 10px; margin-bottom: 15px; font-size: 16px;
-    }
+
+
+
+
+    /* Buttons Container */
     .buttons {
-      margin-top: 20px;
+      margin-top: 30px;
       display: flex;
       justify-content: center;
       gap: 20px;
+      flex-wrap: wrap;
     }
-    button, input[type="submit"], input[type="reset"] {
-      padding: 12px 20px;
-      margin: 5px;
-      font-size: 16px;
-      font-weight: bold;
+
+
+
+
+    /* Generic Button Styles */
+    button {
+      padding: 12px 28px;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 10px;
       cursor: pointer;
-      border-radius: 8px;
-      border: 1px solid #333;
+      border: 2px solid transparent;
+      transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      user-select: none;
+      background-color: #3498db;
+      color: white;
+      min-width: 140px;
     }
+
+
+
+
+    button:hover {
+      background-color: #2980b9;
+      box-shadow: 0 5px 12px rgba(41,128,185,0.5);
+    }
+
+
+
+
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px #a6c8ff;
+    }
+
+
+
+
+    /* DC Buttons */
     .dc-button {
-      background-color: #bdf6bf;
-      border: 2px solid black;
-      padding: 15px 0;
+      background-color: #2ecc71;
+      border: 2px solid #27ae60;
       font-size: 20px;
-      color: black;
-      font-weight: bold;
-      border-radius: 8px;
-      margin: 10px auto;
-      width: 250px;
+      padding: 16px 0;
+      width: 260px;
+      font-weight: 800;
+      color: white;
+      margin: 15px auto;
+      box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+      transition: background-color 0.25s ease-in-out;
       display: block;
-      cursor: pointer;
-      text-align: center;
     }
+
+
+
+
+    .dc-button:hover {
+      background-color: #27ae60;
+      box-shadow: 0 6px 14px rgba(39, 174, 96, 0.6);
+    }
+
+
+
+
+    /* Navigation Buttons */
     .nav-button {
-      background-color: #f9fbe7;
-      border-color: #9e9d24;
-      min-width: 130px;
+      background-color: #f39c12;
+      border-color: #d35400;
+      color: white;
+      min-width: 150px;
+      box-shadow: 0 3px 8px rgba(211, 84, 0, 0.4);
     }
-    .station { text-align: left; margin: 20px 0; }
-    .station-title {
-      font-weight: bold;
-      text-decoration: underline;
-      font-size: 18px;
-      margin-bottom: 8px;
+
+
+
+
+    .nav-button:hover {
+      background-color: #d35400;
+      box-shadow: 0 5px 14px rgba(211, 84, 0, 0.6);
     }
-    .vote-buttons { display: flex; gap: 10px; margin-top: 5px; }
+
+
+
+
+    /* Vote Buttons - thumbs up/down */
     .vote-btn {
-      padding: 10px 20px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      border: 1px solid #9e9d24;
-      border-radius: 8px;
+      font-size: 24px;
+      width: 60px;
+      height: 60px;
+      border: 3px solid;
+      border-radius: 12px;
       background-color: white;
+      font-weight: 700;
+      margin: 0 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
-    .vote-btn:hover { background-color: #f0f4c3; }
-    .vote-btn.selected { background-color: #add8e6; }
+
+
+
+
+    .vote-btn.thumbs-up {
+      border-color: #27ae60;
+      color: #27ae60;
+    }
+
+
+
+
+    .vote-btn.thumbs-up:hover {
+      background-color: #27ae60;
+      color: white;
+      box-shadow: 0 5px 14px rgba(39, 174, 96, 0.6);
+      transform: translateY(-2px);
+    }
+
+
+
+
+    .vote-btn.thumbs-up.selected {
+      background-color: #27ae60;
+      color: white;
+      box-shadow: 0 6px 18px rgba(39, 174, 96, 0.75);
+      transform: scale(1.1);
+    }
+
+
+
+
+    .vote-btn.thumbs-down {
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+
+
+
+    .vote-btn.thumbs-down:hover {
+      background-color: #e74c3c;
+      color: white;
+      box-shadow: 0 5px 14px rgba(231, 76, 60, 0.6);
+      transform: translateY(-2px);
+    }
+
+
+
+
+    .vote-btn.thumbs-down.selected {
+      background-color: #e74c3c;
+      color: white;
+      box-shadow: 0 6px 18px rgba(231, 76, 60, 0.75);
+      transform: scale(1.1);
+    }
+
+
+
+
+    /* Station Container - Fixed Alignment */
+    #station-container {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+
+
+
+    .station {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid #e1e5e9;
+      transition: box-shadow 0.3s ease;
+    }
+
+
+
+
+    .station:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+
+
+
+    .station-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+
+
+
+    .votes {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+
+
+
+    .rating-label {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+
+
+
+    /* Auth Buttons Container */
+    #auth-buttons {
+      margin-bottom: 35px;
+      max-width: 480px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+
+
+
+    #greeting {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+
+
+
+    #dc-welcome {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      line-height: 1.5;
+    }
+
+
+
+
+    /* Results styling */
+    #results-list {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: left;
+      max-width: 500px;
+      margin: 0 auto 20px auto;
+    }
+
+
+
+
+    #results-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #ecf0f1;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+
+
+
+    #results-list li:last-child {
+      border-bottom: none;
+    }
+
+
+
+
+    .vote-count {
+      background: #f8f9fa;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #495057;
+      font-weight: 700;
+    }
+
+
+
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .station {
+        padding: 15px;
+      }
+     
+      .station-title {
+        font-size: 1.1rem;
+      }
+     
+      .vote-btn {
+        width: 45px;
+        height: 45px;
+        margin: 0 5px;
+        font-size: 18px;
+      }
+     
+      h1 {
+        font-size: 2.2rem;
+      }
+     
+      .dc-button {
+        width: 220px;
+        font-size: 18px;
+      }
+     
+      #results-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }.vote-btn.voted {
+  background-color: #27ae60; /* Green for voted buttons */
+  color: white;
+  box-shadow: 0 6px 18px rgba(39, 174, 96, 0.75);
+  transform: scale(1.1);
+}
+
+
+.vote-stats {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+
+.vote-count {
+  background: #f8f9fa;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+
+.thumbs-up-count {
+  color: #27ae60;
+}
+
+
+.thumbs-down-count {
+  color: #e74c3c;
+}
+
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}.vote-btn.voted {
+  background-color: #27ae60; /* Green for voted buttons */
+  color: white;
+  box-shadow: 0 6px 18px rgba(39, 174, 96, 0.75);
+  transform: scale(1.1);
+}
+
+
+.vote-stats {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+
+.vote-count {
+  background: #f8f9fa;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+
+.thumbs-up-count {
+  color: #27ae60;
+}
+
+
+.thumbs-down-count {
+  color: #e74c3c;
+}
+
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+
   </style>
 </head>
 <body>
   <h1>DC DISH VOTING</h1>
-
-  <div id="auth-container">
-    <button id="login-btn" onclick="loginWithGoogle()">Log in with Google</button>
-    <button id="logout-btn" onclick="logout()" style="display:none;">Log out</button>
+ 
+  <!-- Firebase Auth Buttons and Greeting -->
+  <div id="auth-buttons">
+    <button id="loginBtn">Log in with Google</button>
+    <button id="logoutBtn" style="display: none;">Log out</button>
     <p id="greeting">Please log in.</p>
   </div>
-
-  <form id="multiStepForm">
-    <div class="form-step active" id="step-login"></div>
-
-    <div class="form-step" id="step-dc-selection">
-      <h2>Select Your Dining Commons</h2>
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <button type="button" class="dc-button" onclick="goToDC('segundo')">Segundo</button>
-        <button type="button" class="dc-button" onclick="goToDC('tercero')">Tercero</button>
-        <button type="button" class="dc-button" onclick="goToDC('cuarto')">Cuarto</button>
-        <button type="button" class="dc-button" onclick="goToDC('latitude')">Latitude</button>
-      </div>
-      <!-- Back button removed as requested -->
+ 
+  <form id="multiStepForm" autocomplete="off">
+    <!-- Step 0: Login (hidden after login) -->
+    <div class="form-step" id="step-login">
+      <!-- empty, login UI handled by #auth-buttons above -->
     </div>
 
-    <div class="form-step" id="dc-step">
+
+
+
+    <!-- Step 1: DC selection -->
+    <div class="form-step" id="step-dc">
+      <h2>Select Your Dining Commons</h2>
+      <button type="button" class="dc-button" onclick="tryGoToDC('segundo')">Seguendo</button>
+      <button type="button" class="dc-button" onclick="tryGoToDC('tercero')">Tercero</button>
+      <button type="button" class="dc-button" onclick="tryGoToDC('cuarto')">Cuarto</button>
+      <button type="button" class="dc-button" onclick="tryGoToDC('latitude')">Latitude</button>
+    </div>
+
+
+
+
+    <!-- Step 2: Voting -->
+    <div class="form-step" id="step-vote">
       <h2 id="dc-title">Dining Commons</h2>
       <div id="dc-welcome"></div>
       <div id="station-container"></div>
       <div class="buttons">
-        <button type="button" class="nav-button" onclick="prevStep()">Back</button>
-        <button type="button" id="submit-votes-btn" class="nav-button" onclick="submitVotes()">Submit Votes</button>
+      <button type="button" class="nav-button" onclick="showResults()">View Results</button>
       </div>
     </div>
 
-    <div class="form-step" id="results-step">
-      <h2>Top Rated Dishes</h2>
+
+
+
+    <!-- Step 3: Results -->
+    <div class="form-step" id="step-results">
+      <h2>Top 3 Rated Stations</h2>
       <ol id="results-list"></ol>
+      <div class="buttons">
+        <button type="button" class="nav-button" onclick="goToDCSelection()">Vote at Different DC</button>
+      </div>
     </div>
   </form>
 
+
+
+
+  <!-- Firebase SDKs in <head> -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script> <!-- ADD THIS -->
+
+
   <script>
-    const steps = document.querySelectorAll(".form-step");
-    let currentStep = 0;
-    let selectedDC = "";
-    let selectedVotes = {};
-    const voteStats = {};
-
-    function showStep(step) {
-      steps.forEach((s, i) => s.classList.toggle("active", i === step));
-    }
-
-    function nextStep() {
-      if (currentStep < steps.length - 1) {
-        currentStep++;
-      }
-      showStep(currentStep);
-    }
-
-    function prevStep() {
-      if (currentStep > 0) {
-        currentStep--;
-      }
-      showStep(currentStep);
-    }
-
-    function goToDC(dc) {
-      selectedDC = dc;
-      currentStep = 2;
-      showStep(currentStep);
-      const now = new Date();
-      const mins = now.getHours() * 60 + now.getMinutes();
-      let stations = [], meal = "";
-      if (dc === "segundo" || dc === "tercero") {
-        meal = mins < 660 ? "breakfast" : mins < 1020 ? "lunch" : "dinner";
-        stations = meal === "breakfast"
-          ? ["Tomato Street Grill", "Go Live", "Fresh Inspirations", "Harvest Bakery"]
-          : ["Bistro", "Pacific Fusion", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
-      } else if (dc === "cuarto") {
-        meal = mins < 660 ? "breakfast" : "lunch";
-        stations = meal === "breakfast"
-          ? ["Tomato Street Grill", "Seasonality East", "Fresh Inspirations", "Harvest Bakery"]
-          : ["Tomato Street Grill", "Seasonality West", "Saucey Saute", "Seasonality East", "Saucey", "Fresh Inspirations", "Harvest Bakery"];
-      } else if (dc === "latitude") {
-        if (mins >= 630 && mins < 900) meal = "lunch";
-        else if (mins >= 990 && mins < 1200) meal = "dinner";
-        stations = meal ? ["Station 1", "Station 2", "Station 3", "Station 4"] : ["Latitude is currently closed."];
-      }
-      document.getElementById("dc-title").textContent = dc.toUpperCase() + " DC";
-      document.getElementById("dc-welcome").textContent = meal ? `Welcome to ${dc.toUpperCase()} DC, here\'s today\'s ${meal} menu.` : '';
-      selectedVotes = {};
-      renderStations(stations);
-    }
-
-    function renderStations(stations) {
-      const container = document.getElementById("station-container");
-      container.innerHTML = "";
-      stations.forEach((station) => {
-        const div = document.createElement("div");
-        div.className = "station";
-        const title = document.createElement("div");
-        title.className = "station-title";
-        title.textContent = station;
-        const voteDiv = document.createElement("div");
-        voteDiv.className = "vote-buttons";
-
-        const up = document.createElement("button");
-        const down = document.createElement("button");
-        up.type = "button";
-        down.type = "button";
-        up.className = down.className = "vote-btn";
-        up.textContent = "👍";
-        down.textContent = "👎";
-
-        up.onclick = () => {
-          selectVote(up, down);
-          selectedVotes[station] = "up";
-        };
-        down.onclick = () => {
-          selectVote(down, up);
-          selectedVotes[station] = "down";
-        };
-
-        voteDiv.append(up, down);
-        div.append(title, voteDiv);
-        container.appendChild(div);
-      });
-    }
-
-    function selectVote(sel, other) {
-      sel.classList.add("selected");
-      other.classList.remove("selected");
-    }
-
-    function submitVotes() {
-      if (Object.keys(selectedVotes).length === 0) return alert("Please vote on at least one station.");
-      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
-      for (const [station, vote] of Object.entries(selectedVotes)) {
-        voteStats[station] = voteStats[station] || { total: 0, score: 0 };
-        voteStats[station].total++;
-        if (vote === "up") voteStats[station].score++;
-      }
-      const top3 = Object.entries(voteStats)
-        .sort((a, b) => b[1].score - a[1].score)
-        .slice(0, 3);
-      const list = document.getElementById("results-list");
-      list.innerHTML = top3.map(([s, d]) => `<li>${s} - ${d.score} 👍 out of ${d.total} votes</li>`).join('');
-      currentStep = 3;
-      showStep(currentStep);
-    }
-  </script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDOk0pjGJ8PIW3iKF3eszVDO4XO8qYXTNo",
       authDomain: "dcdishgame.firebaseapp.com",
-      databaseURL: "https://dcdishgame-default-rtdb.firebaseio.com",
       projectId: "dcdishgame",
-      storageBucket: "dcdishgame.firebasestorage.app",
+      storageBucket: "dcdishgame.appspot.com",
       messagingSenderId: "936299946861",
-      appId: "1:936299946861:web:93ac2c893e9a651776f064",
-      measurementId: "G-YHTDWS0DQE"
+      appId: "1:936299946861:web:4a944a1bf37f172e2e54eb"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
 
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+   
+    // Initialize Firebase
+    const aoo = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    function loginWithGoogle() {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          const user = result.user;
-          alert(`Hi ${user.displayName}, you are logged in!`);
-          document.getElementById('greeting').textContent = `Hi ${user.displayName}`;
-          document.getElementById('login-btn').style.display = "none";
-          document.getElementById('logout-btn').style.display = "inline-block";
-          currentStep = 1;
-          showStep(currentStep);
-        })
-        .catch((error) => {
-          console.error("Login error:", error);
-        });
+
+
+
+    // Elements
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const greeting = document.getElementById('greeting');
+    const steps = document.querySelectorAll('.form-step');
+
+
+
+
+    // State variables
+    let currentStep = 0;
+let selectedDC = null;
+let currentMeal = null;
+let userVotes = {};
+let stationVoteCounts = {};
+
+
+
+
+    // Dining Commons schedule and stations data
+    const dcSchedules = {
+      segundo: {
+        open: 7,
+        close: 22,
+        meals: [
+          {name:'Breakfast', start:7, end:11},
+          {name:'Lunch', start:11, end:17},
+          {name:'Dinner', start:17, end:22},
+        ]
+      },
+      tercero: {
+        open: 7,
+        close: 22,
+        meals: [
+          {name:'Breakfast', start:7, end:11},
+          {name:'Lunch', start:11, end:17},
+          {name:'Dinner', start:17, end:22},
+        ]
+      },
+      cuarto: {
+        open: 7,
+        close: 22,
+        meals: [
+          {name:'Breakfast', start:7, end:11},
+          {name:'Lunch', start:11, end:17},
+          {name:'Dinner', start:17, end:22},
+        ]
+      },
+      latitude: {
+        open: 10.5,
+        close: 20,
+        meals: [
+          {name:'Lunch', start:10.5, end:15},
+          {name:'Dinner', start:16.5, end:20},
+        ]
+      },
+    };
+
+
+
+
+    // Stations by DC and meal
+    const dcStations = {
+      latitude: {
+        stations: ['Station 1', 'Station 2', 'Station 3', 'Station 4'],
+        meals: ['Lunch', 'Dinner']
+      },
+      cuarto: {
+        Breakfast: ['Tomato Street Grill', 'Seasonality East', 'Fresh Inspirations', 'Harvest Bakery'],
+        Lunch: ['Tomato Street Grill', 'Seasonality West', 'Sauce Saute', 'Seasonality East', 'Saucey', 'Fresh Inspirations', 'Harvest Bakery'],
+        Dinner: ['Tomato Street Grill', 'Seasonality West', 'Sauce Saute', 'Seasonality East', 'Saucey', 'Fresh Inspirations', 'Harvest Bakery']
+      },
+      segundo: {
+        Breakfast: ['Tomato Street Grill', 'Go Live', 'Fresh Inspirations', 'Harvest Bakery'],
+        Lunch: ['Tomato Street Grill', 'Go Live', 'Bistro', 'Pacific Fusion', 'Saucey', 'Fresh Inspirations', 'Harvest Bakery'],
+        Dinner: ['Tomato Street Grill', 'Go Live', 'Bistro', 'Pacific Fusion', 'Saucey', 'Fresh Inspirations', 'Harvest Bakery']
+      },
+      tercero: {
+        Breakfast: ['Go Live', 'Pacific Fusion', 'Fresh Inspirations', 'Harvest Bakery'],
+        Lunch: ['Tomato Street Grill', 'Go Live', 'Pacific Fusion', 'Saucey', 'Fresh Inspirations', 'Harvest Bakery'],
+        Dinner: ['Tomato Street Grill', 'Go Live', 'Bistro', 'Pacific Fusion', 'Saucey', 'Fresh Inspirations', 'Harvest Bakery']
+      }
+    };
+
+
+
+
+    // Utilities
+    function showStep(step) {
+      steps.forEach((el, idx) => {
+        el.classList.toggle('active', idx === step);
+      });
+      currentStep = step;
     }
 
-    function logout() {
-      signOut(auth).then(() => {
-        document.getElementById('greeting').textContent = "You are logged out.";
-        document.getElementById('login-btn').style.display = "inline-block";
-        document.getElementById('logout-btn').style.display = "none";
-        currentStep = 0;
-        showStep(currentStep);
+
+
+
+    function getCurrentHourDecimal() {
+      const now = new Date();
+      return now.getHours() + now.getMinutes()/60;
+    }
+
+
+
+
+    function isDCOpen(dc) {
+     
+      if (!dcSchedules[dc]) return false;
+      const hour = getCurrentHourDecimal();
+      return hour >= dcSchedules[dc].open && hour < dcSchedules[dc].close;
+    }
+
+
+
+
+    function getCurrentMeal(dc) {
+      if (!dcSchedules[dc]) return null;
+      const hour = getCurrentHourDecimal();
+      const meals = dcSchedules[dc].meals;
+      for (const meal of meals) {
+        if (hour >= meal.start && hour < meal.end) {
+          return meal.name;
+        }
+      }
+      return null;
+    }
+
+
+
+
+    function formatTime(hour) {
+      const h = Math.floor(hour);
+      const m = Math.round((hour - h) * 60);
+      const period = h >= 12 ? 'PM' : 'AM';
+      const displayHour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+      return `${displayHour}${m > 0 ? ':' + m.toString().padStart(2, '0') : ''}${period}`;
+    }
+
+
+    // 4. VOTE HANDLING FUNCTION - replaces the simple vote storage
+async function handleVote(stationName, voteType) {
+  const user = auth.currentUser;
+  if (!user) {
+    showError("You must be logged in to vote.");
+    return;
+  }
+
+
+  const userId = user.uid;
+  const voteId = `${userId}_${selectedDC}_${currentMeal}_${stationName}`;
+ 
+  try {
+    // Check if user already voted for this station
+    const existingVoteDoc = await db.collection('votes').doc(voteId).get();
+   
+    if (existingVoteDoc.exists) {
+      const existingVote = existingVoteDoc.data();
+      if (existingVote.voteType === voteType) {
+        showError("You've already cast this vote for this station!");
+        return;
+      }
+     
+      // Update existing vote
+      await db.collection('votes').doc(voteId).update({
+        voteType: voteType,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      // Create new vote
+      await db.collection('votes').doc(voteId).set({
+        userId: userId,
+        userName: user.displayName || 'Anonymous',
+        stationName: stationName,
+        dc: selectedDC,
+        meal: currentMeal,
+        voteType: voteType, // 'up' or 'down'
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('greeting').textContent = `Hi ${user.displayName}`;
-        document.getElementById('login-btn').style.display = "none";
-        document.getElementById('logout-btn').style.display = "inline-block";
-        if (currentStep === 0) {
-          currentStep = 1;
-          showStep(currentStep);
-        }
+
+    // Update local vote tracking
+    userVotes[stationName] = voteType;
+   
+    // Refresh the station display to show updated vote counts
+    await loadVoteCounts();
+    updateStationDisplay(stationName);
+   
+    console.log(`Vote recorded: ${voteType} for ${stationName}`);
+   
+  } catch (error) {
+    console.error("Error recording vote:", error);
+    showError(`Failed to record vote: ${error.message}`);
+  }
+}
+
+
+// 5. LOAD VOTE COUNTS FROM FIRESTORE
+async function loadVoteCounts() {
+  if (!selectedDC || !currentMeal) return;
+ 
+  try {
+    const votesQuery = db.collection('votes')
+      .where('dc', '==', selectedDC)
+      .where('meal', '==', currentMeal);
+   
+    const snapshot = await votesQuery.get();
+   
+    // Reset counts
+    stationVoteCounts = {};
+   
+    snapshot.forEach(doc => {
+      const vote = doc.data();
+      const station = vote.stationName;
+     
+      if (!stationVoteCounts[station]) {
+        stationVoteCounts[station] = { up: 0, down: 0 };
+      }
+     
+      if (vote.voteType === 'up') {
+        stationVoteCounts[station].up++;
+      } else if (vote.voteType === 'down') {
+        stationVoteCounts[station].down++;
+      }
+    });
+   
+  } catch (error) {
+    console.error("Error loading vote counts:", error);
+  }
+}
+
+
+// 6. LOAD USER'S EXISTING VOTES
+async function loadUserVotes() {
+  const user = auth.currentUser;
+  if (!user || !selectedDC || !currentMeal) return;
+ 
+  try {
+    const userVotesQuery = db.collection('votes')
+      .where('userId', '==', user.uid)
+      .where('dc', '==', selectedDC)
+      .where('meal', '==', currentMeal);
+   
+    const snapshot = await userVotesQuery.get();
+   
+    userVotes = {};
+    snapshot.forEach(doc => {
+      const vote = doc.data();
+      userVotes[vote.stationName] = vote.voteType;
+    });
+   
+  } catch (error) {
+    console.error("Error loading user votes:", error);
+  }
+}
+// 7. UPDATE STATION DISPLAY WITH VOTE COUNTS AND USER VOTES
+function updateStationDisplay(stationName) {
+  const stationDiv = document.querySelector(`[data-station="${stationName}"]`);
+  if (!stationDiv) return;
+ 
+  const thumbsUpBtn = stationDiv.querySelector('.thumbs-up');
+  const thumbsDownBtn = stationDiv.querySelector('.thumbs-down');
+  const statsDiv = stationDiv.querySelector('.vote-stats');
+ 
+  // Update button states - change from 'selected' to 'voted'
+  thumbsUpBtn.classList.toggle('voted', userVotes[stationName] === 'up');
+  thumbsDownBtn.classList.toggle('voted', userVotes[stationName] === 'down');
+ 
+  // Update vote counts display
+  const counts = stationVoteCounts[stationName] || { up: 0, down: 0 };
+  statsDiv.innerHTML = `
+    <span class="vote-count thumbs-up-count">👍 ${counts.up}</span>
+    <span class="vote-count thumbs-down-count">👎 ${counts.down}</span>
+  `;
+}
+
+
+// 8. UPDATED SHOW STATIONS FUNCTION - key changes
+async function showStations(dc) {
+  selectedDC = dc;
+  userVotes = {}; // reset votes for new DC
+
+
+  // ... existing DC title and welcome message code ...
+
+
+  currentMeal = meal; // Store current meal
+
+
+  const container = document.getElementById('station-container');
+  container.innerHTML = '<div class="loading"></div>'; // Show loading
+
+
+  // ... existing stations array setup ...
+
+
+  // Load vote data from Firestore
+  await Promise.all([loadVoteCounts(), loadUserVotes()]);
+
+
+  // Clear loading indicator
+  container.innerHTML = '';
+
+
+  // Create station vote UI for each station
+  stations.forEach(station => {
+    const stationDiv = document.createElement('div');
+    stationDiv.classList.add('station');
+    stationDiv.setAttribute('data-station', station); // Add data attribute
+
+
+    // ... existing title and rating label code ...
+
+
+    // Updated button click handlers
+    const thumbsUp = document.createElement('button');
+    thumbsUp.type = 'button';
+    thumbsUp.classList.add('vote-btn', 'thumbs-up');
+    thumbsUp.innerHTML = '👍';
+    thumbsUp.title = `Thumbs up for ${station}`;
+    thumbsUp.onclick = () => handleVote(station, 'up'); // Use new handleVote function
+
+
+    const thumbsDown = document.createElement('button');
+    thumbsDown.type = 'button';
+    thumbsDown.classList.add('vote-btn', 'thumbs-down');
+    thumbsDown.innerHTML = '👎';
+    thumbsDown.title = `Thumbs down for ${station}`;
+    thumbsDown.onclick = () => handleVote(station, 'down'); // Use new handleVote function
+
+
+    votesDiv.appendChild(thumbsUp);
+    votesDiv.appendChild(thumbsDown);
+
+
+    // Add vote statistics display
+    const statsDiv = document.createElement('div');
+    statsDiv.classList.add('vote-stats');
+
+
+    stationDiv.appendChild(title);
+    stationDiv.appendChild(ratingLabel);
+    stationDiv.appendChild(votesDiv);
+    stationDiv.appendChild(statsDiv); // Add stats div
+    container.appendChild(stationDiv);
+
+
+    // Update display with current vote counts
+    updateStationDisplay(station);
+  });
+
+
+  showStep(2);
+}
+
+
+    function showStations(dc) {
+      selectedDC = dc;
+      votes = {}; // reset votes for new DC
+
+
+
+
+      const dcTitle = document.getElementById('dc-title');
+      dcTitle.textContent = dc.charAt(0).toUpperCase() + dc.slice(1);
+
+
+
+
+      const dcWelcome = document.getElementById('dc-welcome');
+     
+      // Determine meal period
+      const meal = getCurrentMeal(dc);
+      if (!meal) {
+        alert(`${dcTitle.textContent} is currently closed.`);
+        goToDCSelection();
+        return;
+      }
+
+
+
+
+      // Create welcome message with meal times
+      const schedule = dcSchedules[dc];
+      const currentMealInfo = schedule.meals.find(m => m.name === meal);
+      const welcomeText = `Welcome to ${dcTitle.textContent} DC! Here's today's ${meal.toLowerCase()} menu (${formatTime(currentMealInfo.start)} - ${formatTime(currentMealInfo.end)}). Rate each station with a thumbs up 👍 or thumbs down 👎!`;
+      let userVotes = {};            // ← ADD
+      let stationVoteCounts = {};    // ← ADD
+
+
+
+
+      dcWelcome.textContent = welcomeText;
+
+
+
+
+      const container = document.getElementById('station-container');
+      container.innerHTML = '';
+
+
+
+
+      // Get stations based on dc and meal
+      let stations = [];
+      if (dc === 'latitude') {
+        stations = dcStations.latitude.stations;
       } else {
-        document.getElementById('greeting').textContent = "Please log in.";
-        document.getElementById('login-btn').style.display = "inline-block";
-        document.getElementById('logout-btn').style.display = "none";
-        currentStep = 0;
-        showStep(currentStep);
+        stations = dcStations[dc][meal];
+        if (!stations) {
+          alert(`${dcTitle.textContent} has no stations during ${meal} period.`);
+          goToDCSelection();
+          return;
+        }
+      }
+
+
+
+
+      // Create station vote UI for each station
+      stations.forEach(station => {
+        const stationDiv = document.createElement('div');
+        stationDiv.classList.add('station');
+
+
+
+
+        const title = document.createElement('div');
+        title.classList.add('station-title');
+        title.textContent = station;
+
+
+
+
+        const ratingLabel = document.createElement('div');
+        ratingLabel.classList.add('rating-label');
+        ratingLabel.textContent = 'Vote for this station:';
+
+
+
+
+        const votesDiv = document.createElement('div');
+        votesDiv.classList.add('votes');
+
+
+
+
+        // Create thumbs up/down buttons
+        const thumbsUp = document.createElement('button');
+        thumbsUp.type = 'button';
+        thumbsUp.classList.add('vote-btn', 'thumbs-up');
+        thumbsUp.innerHTML = '👍';
+        thumbsUp.title = `Thumbs up for ${station}`;
+
+
+
+
+        thumbsUp.onclick = () => {
+          votes[station] = 'up';
+          // Highlight selected vote btn
+          Array.from(votesDiv.children).forEach(child => child.classList.remove('selected'));
+          thumbsUp.classList.add('selected');
+        };
+
+
+
+
+        const thumbsDown = document.createElement('button');
+        thumbsDown.type = 'button';
+        thumbsDown.classList.add('vote-btn', 'thumbs-down');
+        thumbsDown.innerHTML = '👎';
+        thumbsDown.title = `Thumbs down for ${station}`;
+
+
+
+
+        thumbsDown.onclick = () => {
+          votes[station] = 'down';
+          // Highlight selected vote btn
+          Array.from(votesDiv.children).forEach(child => child.classList.remove('selected'));
+          thumbsDown.classList.add('selected');
+        };
+
+
+
+
+        votesDiv.appendChild(thumbsUp);
+        votesDiv.appendChild(thumbsDown);
+
+
+
+
+        stationDiv.appendChild(title);
+        stationDiv.appendChild(ratingLabel);
+        stationDiv.appendChild(votesDiv);
+        container.appendChild(stationDiv);
+      });
+
+
+
+
+      showStep(2);
+    }
+
+
+   
+
+
+
+
+
+
+
+
+    function tryGoToDC(dc) {
+      if (!isDCOpen(dc)) {
+        alert(`${dc.charAt(0).toUpperCase() + dc.slice(1)} is currently closed. Please choose a different dining commons.`);
+        return;
+      }
+      showStations(dc);
+    }
+
+
+
+
+    function submitVotes() {
+      // Ensure user voted on all stations
+      const stationContainer = document.getElementById('station-container');
+      const stations = Array.from(stationContainer.querySelectorAll('.station-title')).map(s => s.textContent);
+     
+      for (const station of stations) {
+        if (!votes[station]) {
+          alert(`Please rate all stations. Missing rating for "${station}".`);
+          return;
+        }
+      }
+
+
+
+
+      // Store votes in allVotes for counting
+      for (const station of stations) {
+        if (!allVotes[station]) {
+          allVotes[station] = { up: 0, down: 0 };
+        }
+        if (votes[station] === 'up') {
+          allVotes[station].up++;
+        } else {
+          allVotes[station].down++;
+        }
+      }
+
+
+
+
+      // Calculate scores and get top 3
+      const stationScores = stations.map(station => ({
+        name: station,
+        score: (allVotes[station]?.up || 0) - (allVotes[station]?.down || 0),
+        upVotes: allVotes[station]?.up || 0,
+        downVotes: allVotes[station]?.down || 0,
+        totalVotes: (allVotes[station]?.up || 0) + (allVotes[station]?.down || 0)
+      }));
+
+
+
+
+      // Sort by score (highest first) and take top 3
+      stationScores.sort((a, b) => b.score - a.score);
+      const top3 = stationScores.slice(0, 3);
+
+
+
+
+      const resultsList = document.getElementById('results-list');
+      resultsList.innerHTML = '';
+     
+      top3.forEach((station, index) => {
+        const li = document.createElement('li');
+        const rank = index + 1;
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
+       
+        const stationInfo = document.createElement('span');
+        stationInfo.innerHTML = `${medal} <strong>${station.name}</strong>`;
+       
+        const voteCount = document.createElement('span');
+        voteCount.classList.add('vote-count');
+        voteCount.innerHTML = `👍 ${station.upVotes} | 👎 ${station.downVotes}`;
+       
+        li.appendChild(stationInfo);
+        li.appendChild(voteCount);
+        resultsList.appendChild(li);
+      });
+
+
+
+
+      showStep(3);
+    }
+
+
+
+
+    function goToDCSelection() {
+      votes = {};
+      selectedDC = null;
+      showStep(1);
+    }
+
+
+
+
+    // Firebase login/logout handlers
+    loginBtn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(console.error);
+    });
+
+
+
+
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut().catch(console.error);
+    });
+
+
+
+
+    // Auth state change
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        greeting.textContent = `Hi ${user.displayName}!`;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        showStep(1);
+      } else {
+        greeting.textContent = 'Please log in to continue.';
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        showStep(0);
       }
     });
 
-    window.loginWithGoogle = loginWithGoogle;
-    window.logout = logout;
+
+
+
+    // On page load
+    window.onload = () => {
+      auth.currentUser ? showStep(1) : showStep(0);
+   
+    };
+
+
+   
   </script>
 </body>
 </html>
+
+
+
+
+
