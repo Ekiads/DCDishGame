@@ -879,32 +879,53 @@ function updateStationDisplay(stationName) {
 }
 
 
-// 8. UPDATED SHOW STATIONS FUNCTION - key changes
 async function showStations(dc) {
   selectedDC = dc;
   userVotes = {}; // reset votes for new DC
 
+  const dcTitle = document.getElementById('dc-title');
+  dcTitle.textContent = dc.charAt(0).toUpperCase() + dc.slice(1);
 
-  // ... existing DC title and welcome message code ...
-
+  const dcWelcome = document.getElementById('dc-welcome');
+  
+  // Determine meal period
+  const meal = getCurrentMeal(dc);
+  if (!meal) {
+    alert(`${dcTitle.textContent} is currently closed.`);
+    goToDCSelection();
+    return;
+  }
 
   currentMeal = meal; // Store current meal
 
+  // Create welcome message with meal times
+  const schedule = dcSchedules[dc];
+  const currentMealInfo = schedule.meals.find(m => m.name === meal);
+  const welcomeText = `Welcome to ${dcTitle.textContent} DC! Here's today's ${meal.toLowerCase()} menu (${formatTime(currentMealInfo.start)} - ${formatTime(currentMealInfo.end)}). Rate each station with a thumbs up 👍 or thumbs down 👎!`;
+
+  dcWelcome.textContent = welcomeText;
 
   const container = document.getElementById('station-container');
   container.innerHTML = '<div class="loading"></div>'; // Show loading
 
-
-  // ... existing stations array setup ...
-
+  // Get stations based on dc and meal
+  let stations = [];
+  if (dc === 'latitude') {
+    stations = dcStations.latitude.stations;
+  } else {
+    stations = dcStations[dc][meal];
+    if (!stations) {
+      alert(`${dcTitle.textContent} has no stations during ${meal} period.`);
+      goToDCSelection();
+      return;
+    }
+  }
 
   // Load vote data from Firestore
   await Promise.all([loadVoteCounts(), loadUserVotes()]);
 
-
   // Clear loading indicator
   container.innerHTML = '';
-
 
   // Create station vote UI for each station
   stations.forEach(station => {
@@ -912,9 +933,16 @@ async function showStations(dc) {
     stationDiv.classList.add('station');
     stationDiv.setAttribute('data-station', station); // Add data attribute
 
+    const title = document.createElement('div');
+    title.classList.add('station-title');
+    title.textContent = station;
 
-    // ... existing title and rating label code ...
+    const ratingLabel = document.createElement('div');
+    ratingLabel.classList.add('rating-label');
+    ratingLabel.textContent = 'Vote for this station:';
 
+    const votesDiv = document.createElement('div');
+    votesDiv.classList.add('votes');
 
     // Updated button click handlers
     const thumbsUp = document.createElement('button');
@@ -924,7 +952,6 @@ async function showStations(dc) {
     thumbsUp.title = `Thumbs up for ${station}`;
     thumbsUp.onclick = () => handleVote(station, 'up'); // Use new handleVote function
 
-
     const thumbsDown = document.createElement('button');
     thumbsDown.type = 'button';
     thumbsDown.classList.add('vote-btn', 'thumbs-down');
@@ -932,15 +959,12 @@ async function showStations(dc) {
     thumbsDown.title = `Thumbs down for ${station}`;
     thumbsDown.onclick = () => handleVote(station, 'down'); // Use new handleVote function
 
-
     votesDiv.appendChild(thumbsUp);
     votesDiv.appendChild(thumbsDown);
-
 
     // Add vote statistics display
     const statsDiv = document.createElement('div');
     statsDiv.classList.add('vote-stats');
-
 
     stationDiv.appendChild(title);
     stationDiv.appendChild(ratingLabel);
@@ -948,15 +972,12 @@ async function showStations(dc) {
     stationDiv.appendChild(statsDiv); // Add stats div
     container.appendChild(stationDiv);
 
-
     // Update display with current vote counts
     updateStationDisplay(station);
   });
 
-
   showStep(2);
 }
-
 
     function showStations(dc) {
       selectedDC = dc;
